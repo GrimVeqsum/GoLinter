@@ -1,0 +1,7 @@
+linters-settings:
+  loglint:
+    path: ./loglint.exe
+
+linters:
+  enable:
+    - loglint

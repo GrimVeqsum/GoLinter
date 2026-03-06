@@ -3,4 +3,4 @@ version: v1.64.8
 plugins:
   - module: "github.com/GrimVeqsum/GoLinter"
     import: "github.com/GrimVeqsum/GoLinter/cmd/golangci-plugin"
-    version: "latest"
+    version: "v0.1.1"

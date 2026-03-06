@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"loglint/analyzer"
+	"github.com/GrimVeqsum/GoLinter/analyzer"
 
 	"github.com/golangci/plugin-module-register/register"
 	"golang.org/x/tools/go/analysis"

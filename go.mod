@@ -1,4 +1,4 @@
-module loglint
+module github.com/GrimVeqsum/GoLinter
 
 go 1.26
 

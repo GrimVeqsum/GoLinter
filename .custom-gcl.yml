@@ -1,6 +1,6 @@
 version: v1.64.8
 
 plugins:
-  - module: 'loglint'
-    import: 'loglint/cmd/golangci-plugin'
-    version: v0.0.0
+  - module: "github.com/GrimVeqsum/GoLinter"
+    import: "github.com/GrimVeqsum/GoLinter/cmd/golangci-plugin"
+    version: "latest"

@@ -1,6 +1,7 @@
 package analyzer
 
 import (
+	"flag"
 	"go/ast"
 	"go/token"
 	"strings"
@@ -8,53 +9,66 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
-var Analyzer = &analysis.Analyzer{
-    Name: "loglint",
-    Doc:  "checks log messages for style and sensitive data rules",
-    Run:  run,
+func NewAnalyzer() *analysis.Analyzer {
+	cfgPath := ""
+	a := &analysis.Analyzer{
+		Name: "loglint",
+		Doc:  "checks log messages for style and sensitive data rules",
+		Run: func(pass *analysis.Pass) (any, error) {
+			cfg, err := loadConfig(cfgPath)
+			if err != nil {
+				return nil, err
+			}
+			return run(pass, cfg), nil
+		},
+	}
+	a.Flags = *flag.NewFlagSet(a.Name, flag.ExitOnError)
+	a.Flags.StringVar(&cfgPath, "config", "", "path to loglint JSON config file")
+	return a
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
-    for _, file := range pass.Files {
-        ast.Inspect(file, func(n ast.Node) bool {
-            call, ok := n.(*ast.CallExpr)
-            if !ok {
-                return true
-            }
+var Analyzer = NewAnalyzer()
 
-            sel, ok := call.Fun.(*ast.SelectorExpr)
-            if !ok {
-                return true
-            }
+func run(pass *analysis.Pass, cfg runtimeConfig) any {
+	for _, file := range pass.Files {
+		ast.Inspect(file, func(n ast.Node) bool {
+			call, ok := n.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
 
-            ident, ok := sel.X.(*ast.Ident)
-            if !ok {
-                return true
-            }
+			sel, ok := call.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
 
-            // Поддерживаем log/slog и zap
-            if ident.Name != "log" && ident.Name != "slog" && ident.Name != "zap" {
-                return true
-            }
+			ident, ok := sel.X.(*ast.Ident)
+			if !ok {
+				return true
+			}
 
-            if len(call.Args) == 0 {
-                return true
-            }
+			if ident.Name != "log" && ident.Name != "slog" && ident.Name != "zap" {
+				return true
+			}
 
-            msgArg, ok := call.Args[0].(*ast.BasicLit)
-            if !ok || msgArg.Kind != token.STRING {
-                return true
-            }
+			if len(call.Args) == 0 {
+				return true
+			}
 
-            msg := strings.Trim(msgArg.Value, "\"")
+			msgArg, ok := call.Args[0].(*ast.BasicLit)
+			if !ok || msgArg.Kind != token.STRING {
+				return true
+			}
 
-            checkLowercase(pass, msgArg, msg)
-            checkEnglish(pass, msgArg, msg)
-            checkSpecialChars(pass, msgArg, msg)
-            checkSensitive(pass, msgArg, msg)
+			msg := strings.Trim(msgArg.Value, "\"")
 
-            return true
-        })
-    }
-    return nil, nil
+			checkLowercase(pass, msgArg, msg, cfg)
+			checkEnglish(pass, msgArg, msg, cfg)
+			checkSpecialChars(pass, msgArg, msg, cfg)
+			checkSensitive(pass, msgArg, msg, cfg)
+
+			return true
+		})
+	}
+	return nil
 }

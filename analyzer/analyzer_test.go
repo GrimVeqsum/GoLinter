@@ -7,6 +7,6 @@ import (
 )
 
 func TestAnalyzer(t *testing.T) {
-    testdata := analysistest.TestData()
-    analysistest.Run(t, testdata, Analyzer, "sample")
+	testdata := analysistest.TestData()
+	analysistest.Run(t, testdata, Analyzer, "logrules")
 }

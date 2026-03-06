@@ -4,7 +4,7 @@ import (
 	"flag"
 	"go/ast"
 	"go/token"
-	"strings"
+	"strconv"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -60,7 +60,10 @@ func run(pass *analysis.Pass, cfg runtimeConfig) any {
 				return true
 			}
 
-			msg := strings.Trim(msgArg.Value, "\"")
+			msg, err := strconv.Unquote(msgArg.Value)
+			if err != nil {
+				return true
+			}
 
 			checkLowercase(pass, msgArg, msg, cfg)
 			checkEnglish(pass, msgArg, msg, cfg)

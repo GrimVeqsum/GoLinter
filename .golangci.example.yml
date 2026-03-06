@@ -1,0 +1,13 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - loglint
+
+linters-settings:
+  custom:
+    loglint:
+      type: module
+      description: Validate log messages against project rules
+      settings: {}

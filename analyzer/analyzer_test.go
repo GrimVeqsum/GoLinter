@@ -29,3 +29,8 @@ func TestAnalyzer_WithMissingConfigFile_UsesDefaults(t *testing.T) {
 	}
 	analysistest.Run(t, testdata, a, "logrules")
 }
+
+func TestAnalyzer_SuggestedFixes(t *testing.T) {
+	testdata := analysistest.TestData()
+	analysistest.RunWithSuggestedFixes(t, testdata, NewAnalyzer(), "logrulesfix")
+}
